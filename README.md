@@ -68,7 +68,16 @@ With **lazy.nvim**:
         theme = nil, -- nil | "light" | "dark" | custom theme string
         cli_args = nil, -- nil | { "-p" } | { "-c", "config.plt" } | ...
       },
-    }
+    },
+    popup_options = {
+      enabled = false,        -- Enable popup preview (default: false)
+      auto_close = true,      -- Auto-close on cursor move (default: true)
+      auto_show = false,      -- Auto-show popup when cursor moves over diagram (default: false)
+      delay = 300,            -- Delay in ms before showing popup (default: 300)
+      width = nil,            -- Custom width (nil = auto)
+      height = nil,           -- Custom height (nil = auto)
+      border = "rounded",     -- Border style: "none", "single", "double", "rounded", "solid", "shadow"
+    },
   },
 },
 ```
@@ -133,7 +142,8 @@ The plugin exposes the following API functions:
 
 - `setup(opts)`: Sets up the plugin with the given options.
 - `get_cache_dir()`: Returns the root cache directory.
-- `show_diagram_hover()`: Shows the diagram at cursor in a new tab (for manual keybinding).
+- `show_diagram_hover()`: Shows the diagram at cursor (popup or new tab based on configuration).
+- `close_popup()`: Manually closes any open popup window.
 
 ### Diagram Hover Feature
 
@@ -181,9 +191,75 @@ You can add a keymap to view diagrams in a dedicated tab. Place your cursor insi
 
 **Features:**
 - **Cursor detection**: Works when cursor is anywhere inside diagram code blocks
-- **New tab display**: Opens diagram in a dedicated tab with proper image rendering
+- **Multiple display modes**: Supports both popup windows and new tabs
 - **Multiple diagram types**: Supports mermaid, plantuml, d2, and gnuplot
 - **Easy navigation**:
-  - `q` or `Esc` to close the diagram tab
+  - `q` or `Esc` to close the diagram
   - `o` to open the image with system viewer (Preview, etc.)
 - **Async rendering**: Handles both cached and newly-rendered diagrams
+
+### Popup Preview Feature
+
+The plugin now supports popup window previews for diagrams, similar to image.nvim's popup feature for images. When enabled, diagrams will be displayed in a floating window at the cursor position.
+
+#### Basic Setup
+
+```lua
+require("diagram").setup({
+  popup_options = {
+    enabled = true,      -- Enable popup preview
+    auto_close = true,   -- Auto-close on cursor move
+    auto_show = false,   -- Manual trigger with keybinding (default)
+    border = "rounded",  -- Window border style
+  },
+})
+```
+
+#### Advanced Configuration
+
+```lua
+require("diagram").setup({
+  popup_options = {
+    enabled = true,        -- Enable popup preview
+    auto_close = true,     -- Auto-close on cursor move
+    auto_show = true,      -- Auto-show popup when cursor moves over diagram
+    delay = 300,           -- Delay in ms before showing popup (prevents flickering)
+    width = 60,            -- Custom width (columns)
+    height = 20,           -- Custom height (lines)
+    border = "rounded",    -- Border style: "none", "single", "double", "rounded", "solid", "shadow"
+  },
+})
+```
+
+#### Display Mode Comparison
+
+**Popup Mode** (recommended for quick previews):
+- Shows diagram in a floating window at cursor position
+- Two trigger modes:
+  - **Auto-show** (recommended): Popup appears automatically when cursor moves over diagram
+  - **Manual trigger**: Press `K` to trigger popup display
+- Auto-closes when cursor moves away (configurable)
+- Perfect for quick diagram verification
+
+**Tab Mode** (default, for detailed viewing):
+- Opens diagram in a dedicated tab
+- Better for complex diagrams or长时间 viewing
+- Can be used alongside popup mode
+
+#### Key Features
+
+- **Smart positioning**: Popup appears at cursor position with proper offset
+- **Auto-sizing**: Automatically adjusts size based on actual image dimensions and terminal size
+  - **Smart scaling**: Converts image pixels to terminal cells for perfect fit
+  - **Aspect ratio preservation**: Maintains original diagram proportions
+  - **Size limits**: Prevents popup from exceeding 80% of terminal size
+- **Auto-cleanup**: Properly cleans up resources when closed
+- **Multiple trigger modes**:
+  - **Auto-show**: Popup appears automatically when cursor moves over diagram (with delay to prevent flickering)
+  - **Manual trigger**: Press `K` to show popup on demand
+- **Intelligent detection**: Only shows popup when cursor is inside diagram code blocks
+- **Multiple diagrams**: Supports all diagram types (mermaid, plantuml, d2, gnuplot)
+- **Flexible closing**:
+  - Auto-close on cursor move (default)
+  - Manual close with `q` or `Esc`
+  - Programmatic close with `require("diagram").close_popup()`
