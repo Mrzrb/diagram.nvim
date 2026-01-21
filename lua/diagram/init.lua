@@ -35,6 +35,13 @@ local state = {
       theme = nil,
       cli_args = nil,
     },
+    svg = {
+      width = nil,
+      height = nil,
+      dpi = nil,
+      background = nil,
+      cli_args = nil,
+    },
   },
   popup_options = {
     enabled = false,        -- Enable popup preview

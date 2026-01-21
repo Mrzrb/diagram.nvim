@@ -13,6 +13,7 @@ local M = {
     renderers.plantuml,
     renderers.d2,
     renderers.gnuplot,
+    renderers.svg,
   },
 }
 
@@ -63,6 +64,7 @@ M.query_buffer_diagrams = function(bufnr)
         or current_language == "plantuml"
         or current_language == "d2"
         or current_language == "gnuplot"
+        or current_language == "svg"
       then
         local _, _, end_row, end_col = node:range()
         current_range.end_row = end_row
